@@ -15,7 +15,7 @@ const int WINDOW_WIDTH = 800, WINDOW_HEIGHT = 600;
 void initGLFW() {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
@@ -57,7 +57,7 @@ int main() {
 	if(initGL() == 1) return 1;
 	else std::cout << "Successfully initialised glew" << std::endl;
 
-	fluid = new Fluid(100, WINDOW_WIDTH, WINDOW_HEIGHT);
+	fluid = new Fluid(100, 32, WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	while (!glfwWindowShouldClose(window)) {
 		tick();

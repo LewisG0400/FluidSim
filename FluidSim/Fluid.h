@@ -6,10 +6,15 @@
 
 #include "Shader.h"
 
+typedef struct cell {
+	glm::vec4 vel;
+
+} Cell;
+
 class Fluid
 {
 public:
-	Fluid(int nParticles, int containerWidth, int containerHeight);
+	Fluid(int nParticles, int nCells, int containerWidth, int containerHeight);
 
 	void tick();
 	void render();
@@ -23,6 +28,6 @@ private:
 
 	Shader *shader;
 
-	GLuint vao, positionBO, velocityBO;
+	GLuint vao, positionBO, velocityBO, cellBO;
 };
 

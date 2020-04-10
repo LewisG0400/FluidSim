@@ -26,18 +26,21 @@ public:
 		return content;
 	}
 
+	GLuint getComputeID();
+
 	void addUniform(std::string name);
 
 	void setUniform1i(std::string uniformName, int val);
 	void setUniformVec3Arrayf(std::string uniformName, glm::vec3 val[], int size);
 
 	void bind();
+	void bindCompute();
 	void unbind();
 
 	~Shader();
 
 private:
-	GLuint programID;
+	GLuint programID, computeProgramID;
 	std::map<std::string, GLuint> uniforms;
 };
 

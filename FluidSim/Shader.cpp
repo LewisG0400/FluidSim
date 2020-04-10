@@ -42,10 +42,20 @@ Shader::Shader(std::string path) {
 		std::cout << "ERROR::SHADER::COMPUTE::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 
+	computeProgramID = glCreateProgram();
+	glAttachShader(computeProgramID, computeID);
+	glLinkProgram(computeProgramID);
+	glGetProgramiv(computeProgramID, GL_LINK_STATUS, &success);
+	if (!success) {
+		glGetProgramInfoLog(programID, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	}
+
+	glDeleteShader(computeID);
+
 	programID = glCreateProgram();
 	glAttachShader(programID, vertID);
 	glAttachShader(programID, fragID);
-	glAttachShader(programID, computeID);
 	glLinkProgram(programID);
 	glGetProgramiv(programID, GL_LINK_STATUS, &success);
 	if (!success) {
@@ -55,7 +65,10 @@ Shader::Shader(std::string path) {
 
 	glDeleteShader(vertID);
 	glDeleteShader(fragID);
-	glDeleteShader(computeID);
+}
+
+GLuint Shader::getComputeID() {
+	return computeProgramID;
 }
 
 void Shader::addUniform(std::string name) {
@@ -72,6 +85,10 @@ void Shader::setUniformVec3Arrayf(std::string uniformName, glm::vec3 t_val[], in
 
 void Shader::bind() {
 	glUseProgram(programID);
+}
+
+void Shader::bindCompute() {
+	glUseProgram(computeProgramID);
 }
 
 void Shader::unbind() {
