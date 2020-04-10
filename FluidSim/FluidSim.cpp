@@ -3,8 +3,12 @@
 #include <iostream>
 #include <GLEW/glew.h>
 #include <GLFW/glfw3.h>
+#include <time.h>
+
+#include "Fluid.h"
 
 GLFWwindow *window;
+Fluid *fluid;
 
 const int WINDOW_WIDTH = 800, WINDOW_HEIGHT = 600;
 
@@ -30,10 +34,14 @@ int initGL() {
 
 void tick() {
 	glfwPollEvents();
+	fluid->tick();
 }
 
 void render() {
 	glClear(GL_COLOR_BUFFER_BIT);
+
+	fluid->render();
+
 	glfwSwapBuffers(window);
 }
 
@@ -41,12 +49,15 @@ void exit() {
 	glfwDestroyWindow(window);
 }
 
-int main()
-{
+int main() {
+	srand(time(NULL));
+
 	initGLFW();
 	std::cout << "Initialised GLFW" << std::endl;
 	if(initGL() == 1) return 1;
 	else std::cout << "Successfully initialised glew" << std::endl;
+
+	fluid = new Fluid(100, WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	while (!glfwWindowShouldClose(window)) {
 		tick();
