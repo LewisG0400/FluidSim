@@ -24,7 +24,6 @@ void main() {
 	vec2 cellPos = vec2(floor(800.0f / positions[id].x) * nCells, floor(600.0f / positions[id].y) * nCells);
 	int cellID = int(cellPos.y * nCells + cellPos.x);
 
-	//velocities[id] = cellVelocities[0];
-
-	positions[id] = positions[id] + velocities[id];
+	velocities[id] += cellVelocities[cellID];
+	positions[id] += velocities[id];
 }

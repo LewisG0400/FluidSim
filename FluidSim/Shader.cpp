@@ -9,9 +9,6 @@ Shader::Shader(std::string path) {
 	std::string fragSource = readFile(path + ".frag");
 	const GLchar* fragSourceA = fragSource.c_str();
 
-	std::string computeSource = readFile(path + ".compute");
-	const GLchar* computeSourceA = computeSource.c_str();
-
 	GLuint vertID = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertID, 1, &vertSourceA, NULL);
 	glCompileShader(vertID);
@@ -32,27 +29,6 @@ Shader::Shader(std::string path) {
 		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 
-
-	GLuint computeID = glCreateShader(GL_COMPUTE_SHADER);
-	glShaderSource(computeID, 1, &computeSourceA, NULL);
-	glCompileShader(computeID);
-	glGetShaderiv(computeID, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(computeID, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::COMPUTE::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-	computeProgramID = glCreateProgram();
-	glAttachShader(computeProgramID, computeID);
-	glLinkProgram(computeProgramID);
-	glGetProgramiv(computeProgramID, GL_LINK_STATUS, &success);
-	if (!success) {
-		glGetProgramInfoLog(programID, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-	}
-
-	glDeleteShader(computeID);
-
 	programID = glCreateProgram();
 	glAttachShader(programID, vertID);
 	glAttachShader(programID, fragID);
@@ -65,10 +41,6 @@ Shader::Shader(std::string path) {
 
 	glDeleteShader(vertID);
 	glDeleteShader(fragID);
-}
-
-GLuint Shader::getComputeID() {
-	return computeProgramID;
 }
 
 void Shader::addUniform(std::string name) {
@@ -85,10 +57,6 @@ void Shader::setUniformVec3Arrayf(std::string uniformName, glm::vec3 t_val[], in
 
 void Shader::bind() {
 	glUseProgram(programID);
-}
-
-void Shader::bindCompute() {
-	glUseProgram(computeProgramID);
 }
 
 void Shader::unbind() {

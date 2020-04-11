@@ -22,12 +22,13 @@ public:
 	~Fluid();
 
 private:
-	int nParticles;
+	int nParticles, nCells;
 	int containerWidth, containerHeight;
 	std::vector<glm::vec3> positions, velocities;
 
 	Shader *shader;
 
 	GLuint vao, positionBO, velocityBO, cellBO;
+	GLuint computeProgramID, computeProgramID2;
 };
 
