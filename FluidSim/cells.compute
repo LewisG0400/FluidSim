@@ -1,0 +1,21 @@
+#version 440
+#extension GL_ARB_compute_shader : enable
+#extension GL_ARB_shader_storage_buffer_object : enable
+
+layout(std140, binding = 3) buffer cell {
+	vec4 cellVelocities[];
+};
+
+uniform int nCells;
+
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+
+void main() {
+	uint id = gl_GlobalInvocationID.x;
+
+    vec2 pos = vec2(id % nCells, floor(id / nCells));
+    vec2 mid = vec2(nCells / 2, nCells / 2);
+
+    cellVelocities[id] = vec4(mid.x - pos.x, mid.y - pos.y, 0.0f, 0.0f);
+}
