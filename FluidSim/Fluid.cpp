@@ -8,32 +8,11 @@ Fluid::Fluid(int nParticles, int nCells, int containerWidth, int containerHeight
 		velocities.push_back(glm::vec3(0.0f));
 	}
 
-	GLfloat vertices[] = { -1.0f, -1.0f, 0.0f,
-						1.0f, -1.0f, 0.0f,
-						1.0f, 1.0f, 0.0f,
-						-1.0f, 1.0f, 0.0f };
-
-	GLuint indices[]{ 0, 1, 2,
-					  2, 3, 0 };
-
-	GLuint vbo, ibo;
-
-	std::vector<glm::vec4> positions, velocities;
-	std::vector<Cell> cells;
-
-	for (int i = 0; i < nParticles; i++) {
-		positions.push_back(glm::vec4(0.0f));
-		velocities.push_back(glm::vec4(0.1f, 0.0f, 0.0f, 1.0f));
-	}
-
-	Cell* c = new Cell();
-	c->vel = glm::vec4(0.1f, 0.1f, 0.0f, 1.0f);
-	for (int i = 0; i < nCells * nCells; i ++) {
-		cells.push_back(*c);
-	}
-
 	std::string computeSource = Shader::readFile("shader.compute");
 	const GLchar* computeSourceA = computeSource.c_str();
+
+	std::string computeSource1 = Shader::readFile("cells.compute");
+	const GLchar* computeSource1A = computeSource1.c_str();
 
 	GLuint computeID, computeID2;
 	GLint success;
@@ -49,7 +28,7 @@ Fluid::Fluid(int nParticles, int nCells, int containerWidth, int containerHeight
 	}
 
 	computeID2 = glCreateShader(GL_COMPUTE_SHADER);
-	glShaderSource(computeID2, 1, &computeSourceA, NULL);
+	glShaderSource(computeID2, 1, &computeSource1A, NULL);
 	glCompileShader(computeID2);
 	glGetShaderiv(computeID2, GL_COMPILE_STATUS, &success);
 	if (!success) {
@@ -67,7 +46,7 @@ Fluid::Fluid(int nParticles, int nCells, int containerWidth, int containerHeight
 	}
 
 	computeProgramID2 = glCreateProgram();
-	glAttachShader(computeProgramID2, computeID);
+	glAttachShader(computeProgramID2, computeID2);
 	glLinkProgram(computeProgramID2);
 	glGetProgramiv(computeProgramID2, GL_LINK_STATUS, &success);
 	if (!success) {
@@ -76,6 +55,21 @@ Fluid::Fluid(int nParticles, int nCells, int containerWidth, int containerHeight
 	}
 
 	glDeleteShader(computeID);
+	glDeleteShader(computeID2);
+
+	std::vector<glm::vec4> positions, velocities;
+	std::vector<Cell> cells;
+
+	for (int i = 0; i < nParticles; i++) {
+		positions.push_back(glm::vec4(400.0f, 300.0f, 0.0f, 0.0f));
+		velocities.push_back(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+	}
+
+	Cell* c = new Cell();
+	c->vel = glm::vec4(0.1f, 0.1f, 0.0f, 1.0f);
+	for (int i = 0; i < nCells * nCells; i++) {
+		cells.push_back(*c);
+	}
 
 	glGenBuffers(1, &positionBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, positionBO);
@@ -93,6 +87,16 @@ Fluid::Fluid(int nParticles, int nCells, int containerWidth, int containerHeight
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, cellBO);
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	GLfloat vertices[] = { -1.0f, -1.0f, 0.0f,
+						1.0f, -1.0f, 0.0f,
+						1.0f, 1.0f, 0.0f,
+						-1.0f, 1.0f, 0.0f };
+
+	GLuint indices[]{ 0, 1, 2,
+					  2, 3, 0 };
+
+	GLuint vbo, ibo;
 
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -129,11 +133,12 @@ Fluid::Fluid(int nParticles, int nCells, int containerWidth, int containerHeight
 
 void Fluid::tick() {
 	glUseProgram(computeProgramID2);
-	glDispatchCompute(nCells, 1, 1);
+	glDispatchCompute(nCells * nCells, 1, 1);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 	glUseProgram(computeProgramID);
 	glDispatchCompute(nParticles, 1, 1);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
 void Fluid::render() {

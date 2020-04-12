@@ -21,8 +21,9 @@ layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 void main() {
 	uint id = gl_GlobalInvocationID.x;
 
-	vec2 cellPos = vec2(floor(800.0f / positions[id].x) * nCells, floor(600.0f / positions[id].y) * nCells);
+	vec2 cellPos = vec2(int(positions[id].x / 800.0f * nCells), int(positions[id].y / 600.0f * nCells));
 	int cellID = int(cellPos.y * nCells + cellPos.x);
+
 
 	velocities[id] += cellVelocities[cellID];
 	positions[id] += velocities[id];
