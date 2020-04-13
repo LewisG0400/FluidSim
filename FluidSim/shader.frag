@@ -13,6 +13,6 @@ void main() {
 
 	for(int i = 0; i < nParticles; i ++) {
 		float dist = distance(gl_FragCoord.xy, positions[i].xy);
-		if(dist <= 5) colour += vec4(1.0f);
+		if(dist <= 1) colour += vec4(1.0f);
 	}
 }

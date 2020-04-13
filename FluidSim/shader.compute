@@ -2,15 +2,13 @@
 #extension GL_ARB_compute_shader : enable
 #extension GL_ARB_shader_storage_buffer_object : enable
 
-layout(std140, binding = 1) buffer pos {
-	vec4 positions[];
+//x = x pos, y = y pos, z = x vel, w = y vel;
+layout(std140, binding = 1) buffer particle {
+	vec4 particles[];
 };
 
-layout(std140, binding = 2) buffer vel {
-	vec4 velocities[];
-};
-
-layout(std140, binding = 3) buffer cell {
+//x = x vel, y = y vel, z = last x vel, w = last y vel
+layout(std140, binding = 2) buffer velocity {
 	vec4 cellVelocities[];
 };
 
@@ -21,10 +19,17 @@ layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 void main() {
 	uint id = gl_GlobalInvocationID.x;
 
-	vec2 cellPos = vec2(int(positions[id].x / 800.0f * nCells), int(positions[id].y / 600.0f * nCells));
-	int cellID = int(cellPos.y * nCells + cellPos.x);
+	vec2 cellPos = vec2(int(particles[id].x / 800.0f * nCells), int(particles[id].y / 600.0f * nCells));
 
+	if(cellPos.x > nCells || cellPos.x < 0 || cellPos.y > nCells || cellPos.y < 0) {
+		particles[id].zw *= -0.8;
+	} else {
+		int cellID = int(cellPos.y * nCells + cellPos.x);
 
-	velocities[id] += cellVelocities[cellID];
-	positions[id] += velocities[id];
+		//Increment the current particle's velocity by the velocity stored in the cell it lies in
+		particles[id].zw += cellVelocities[cellID].xy;
+	}
+	
+	//Add the current particle's velocity to its position
+	particles[id].xy += particles[id].zw;
 }

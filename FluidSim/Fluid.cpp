@@ -3,11 +3,6 @@
 
 
 Fluid::Fluid(int nParticles, int nCells, int containerWidth, int containerHeight) : nParticles(nParticles), nCells(nCells), containerWidth(containerWidth), containerHeight(containerHeight) {
-	for (int i = 0; i < nParticles; i++) {
-		positions.push_back(glm::vec3(i * 5, containerHeight / 2, 0.0f));
-		velocities.push_back(glm::vec3(0.0f));
-	}
-
 	std::string computeSource = Shader::readFile("shader.compute");
 	const GLchar* computeSourceA = computeSource.c_str();
 
@@ -57,33 +52,33 @@ Fluid::Fluid(int nParticles, int nCells, int containerWidth, int containerHeight
 	glDeleteShader(computeID);
 	glDeleteShader(computeID2);
 
-	std::vector<glm::vec4> positions, velocities;
-	std::vector<Cell> cells;
+	//Particles holds 2 vec2s - positions and velocities
+	//Cell velocities also holds 2 vec2s - cellVelocities and lastCellVelocities
+	//Densities holds a vec2 and padding
+	std::vector<glm::vec4> particles, cellVelocities, cellDensities;
 
 	for (int i = 0; i < nParticles; i++) {
-		positions.push_back(glm::vec4(400.0f, 300.0f, 0.0f, 0.0f));
-		velocities.push_back(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+		particles.push_back(glm::vec4(400.0f, 300.0f, (rand() % 100 - 50) / 10.f, (rand() % 100 - 50) / 10.f));
 	}
 
-	Cell* c = new Cell();
-	c->vel = glm::vec4(0.1f, 0.1f, 0.0f, 1.0f);
 	for (int i = 0; i < nCells * nCells; i++) {
-		cells.push_back(*c);
+		cellVelocities.push_back(glm::vec4(0.1f, 0.0f, 0.0f, 0.0f));
+		cellDensities.push_back(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
 	}
 
-	glGenBuffers(1, &positionBO);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, positionBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, nParticles * sizeof(glm::vec4), &positions[0], GL_STATIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, positionBO);
+	glGenBuffers(1, &particleBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, particleBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, nParticles * sizeof(glm::vec4), &particles[0], GL_STATIC_DRAW);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, particleBO);
 
 	glGenBuffers(1, &velocityBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, velocityBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, nParticles * sizeof(glm::vec4), &velocities[0], GL_STATIC_DRAW);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, nCells * nCells * sizeof(glm::vec4), &cellVelocities[0], GL_STATIC_DRAW);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, velocityBO);
 
 	glGenBuffers(1, &cellBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, nCells * nCells * sizeof(Cell), &cells[0], GL_STATIC_DRAW);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, nCells * nCells * sizeof(glm::vec4), &cellDensities[0], GL_STATIC_DRAW);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, cellBO);
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
@@ -107,7 +102,7 @@ Fluid::Fluid(int nParticles, int nCells, int containerWidth, int containerHeight
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, positionBO);
+	glBindBuffer(GL_ARRAY_BUFFER, particleBO);
 
 	glGenBuffers(1, &ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
