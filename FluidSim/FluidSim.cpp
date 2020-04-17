@@ -57,7 +57,7 @@ int main() {
 	if(initGL() == 1) return 1;
 	else std::cout << "Successfully initialised glew" << std::endl;
 
-	fluid = new Fluid(100, 48, WINDOW_WIDTH, WINDOW_HEIGHT);
+	fluid = new Fluid(1000, 50, WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	while (!glfwWindowShouldClose(window)) {
 		tick();

@@ -27,7 +27,7 @@ private:
 
 	Shader *shader;
 
-	GLuint vao, particleBO, velocityBO, cellBO;
+	GLuint vao;
 	GLuint computeProgramID, computeProgramID2;
 };
 

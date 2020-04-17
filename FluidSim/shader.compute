@@ -27,7 +27,7 @@ void main() {
 		int cellID = int(cellPos.y * nCells + cellPos.x);
 
 		//Increment the current particle's velocity by the velocity stored in the cell it lies in
-		particles[id].zw += cellVelocities[cellID].xy;
+		particles[id].zw += cellVelocities[cellID].xy / 100.f;
 	}
 	
 	//Add the current particle's velocity to its position

@@ -8,14 +8,18 @@ layout(std140, binding = 2) buffer velocity {
 };
 
 //x = density, y = last density
-layout(std140, binding = 3) buffer density {
-	vec4 cellDensities[];
+layout(std140, binding = 3) buffer pressure {
+	vec4 cellPressures[];
 };
 
 uniform int nCells;
 
+float viscosity = 1.5f;
+float density = 500.0f;
+
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
+vec2 grav = vec2(0.0f, -9.81f);
 
 void main() {
 	uint id = gl_GlobalInvocationID.x;
@@ -25,5 +29,7 @@ void main() {
 
     vec2 last = cellVelocities[id].xy;
 
-    cellVelocities[id] = vec4(mid.x - pos.x, mid.y - pos.y, last);
+    vec2 newVel = last + grav;
+
+    cellVelocities[id] = vec4(newVel, last);
 }

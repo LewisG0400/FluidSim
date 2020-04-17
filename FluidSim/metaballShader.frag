@@ -7,7 +7,7 @@ layout (std140, binding = 1) buffer pos {
 
 uniform int nParticles;
 
-float ballRadius = 5.0f;
+float ballRadius = 1.4f;
 float thresh = 39.0f;
 
 out vec4 colour;
